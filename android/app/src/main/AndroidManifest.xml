@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="table_clock"
+        android:label="桌面时钟"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
