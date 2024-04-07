@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:table_clock/main_page/fill_content.dart';
 import 'package:flutter/material.dart';
 import 'package:table_clock/utils/config_ext.dart';
+import 'package:vibration/vibration.dart';
 
 typedef CountStateHook = void Function(bool);
 
@@ -48,7 +49,13 @@ class _MainViewState extends State<MainView> {
 
   void setCountDown() {
     final countdown = getCountdownTime();
-    countdownTimeStr = '$countdown:00';
+    setCountDownTimeStr(countdown, 0);
+    setState_();
+  }
+
+  void setCountDownTimeStr(int min, int sec) {
+    countdownTimeStr =
+        "${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}";
     setState_();
   }
 
@@ -70,10 +77,11 @@ class _MainViewState extends State<MainView> {
       }
       countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         downCountNumInSec--;
-        countdownTimeStr =
-            "${(downCountNumInSec ~/ 60).toString().padLeft(2, '0')}:${(downCountNumInSec % 60).toString().padLeft(2, '0')}";
+        setCountDownTimeStr(downCountNumInSec ~/ 60, downCountNumInSec % 60);
+
         setState_();
         if (downCountNumInSec == 0) {
+          countdownEndedAlert();
           countdownTimer?.cancel();
           countdownTimer = null;
         }
@@ -81,8 +89,15 @@ class _MainViewState extends State<MainView> {
     } else {
       countdownTimer?.cancel();
       countdownTimer = null;
-      countdownTimeStr = '$countdown:00';
+      setCountDownTimeStr(countdown, 0);
       setState_();
+    }
+  }
+
+  void countdownEndedAlert() async {
+    final canVibrate = await Vibration.hasVibrator();
+    if (canVibrate != null && canVibrate) {
+      Vibration.vibrate(duration: 500);
     }
   }
 
@@ -95,7 +110,6 @@ class _MainViewState extends State<MainView> {
         style: const TextStyle(color: Colors.white),
       ),
     );
-
     final content = switch (getCountdownSwitch()) {
       true => Column(children: [
           Expanded(flex: 3, child: timeText),

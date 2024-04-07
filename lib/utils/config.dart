@@ -58,26 +58,90 @@ class VFillSizeConfig extends BaseConfig {
 class RelaxCountdownConfig extends BaseConfig {
   static const countdownTime = RelaxCountdownConfig._(text: '倒计时');
   static const enumInstance = [countdownTime];
-  static const min = 20;
+  static const min = 1;
   static const max = 80;
 
   const RelaxCountdownConfig._({required super.text}) : super._();
+}
+
+class VibratorConfig extends BaseConfig {
+  static const vibratorTime = VibratorConfig._(text: '提醒时长');
+  static const enumInstance = [vibratorTime];
+  static const min = 10;
+  static const max = 30;
+
+  const VibratorConfig._({required super.text}) : super._();
+}
+
+class OLEDPreventBurnConfig extends BaseConfig {
+  static const oledPreventBurn = OLEDPreventBurnConfig._(text: '防烧屏');
+  static const enumInstance = [oledPreventBurn];
+
+  const OLEDPreventBurnConfig._({required super.text}) : super._();
+}
+
+class AutoScreenOffConfig extends BaseConfig {
+  static const autoScreenOff = AutoScreenOffConfig._(text: '自动息屏');
+  static const enumInstance = [autoScreenOff];
+  static const min = 30;
+  static const max = 600;
+
+  const AutoScreenOffConfig._({required super.text}) : super._();
 }
 
 enum ConfigType { singleSwitch, dauSwitch, multiCheck, silder }
 
 List<ConfigEnumWithDesc<BaseConfig>> configLists = [
   ('背景设置', BGConfig.enumInstance, ConfigType.multiCheck, null, null),
-  ("放松提醒", RelaxSwitchConfig.enumInstance, ConfigType.singleSwitch, null, null),
   (
-    '倒计时(${RelaxCountdownConfig.min}~${RelaxCountdownConfig.max}min)',
+    RelaxSwitchConfig.relaxClock.text,
+    RelaxSwitchConfig.enumInstance,
+    ConfigType.singleSwitch,
+    null,
+    null
+  ),
+  (
+    '${RelaxCountdownConfig.countdownTime.text}(${RelaxCountdownConfig.min}~${RelaxCountdownConfig.max}min)',
     RelaxCountdownConfig.enumInstance,
     ConfigType.silder,
     [RelaxCountdownConfig.min, RelaxCountdownConfig.max],
     RelaxSwitchConfig.relaxClock
   ),
-  ('水平填充(%)', VFillSizeConfig.enumInstance, ConfigType.silder, null, null),
-  ('垂直填充(%)', HFillSizeConfig.enumInstance, ConfigType.silder, null, null),
+  (
+    '${VFillSizeConfig.vFillSize.text}(%)',
+    VFillSizeConfig.enumInstance,
+    ConfigType.silder,
+    null,
+    null
+  ),
+  (
+    '${HFillSizeConfig.hFillSize.text}(%)',
+    HFillSizeConfig.enumInstance,
+    ConfigType.silder,
+    null,
+    null
+  ),
+  (
+    '${VibratorConfig.vibratorTime.text}(s)',
+    VibratorConfig.enumInstance,
+    ConfigType.silder,
+    [VibratorConfig.min, VibratorConfig.max],
+    RelaxSwitchConfig.relaxClock
+  ),
+  (
+    OLEDPreventBurnConfig.oledPreventBurn.text,
+    OLEDPreventBurnConfig.enumInstance,
+    ConfigType.singleSwitch,
+    null,
+    null
+  ),
+  (
+    AutoScreenOffConfig.autoScreenOff.text,
+    AutoScreenOffConfig.enumInstance,
+    ConfigType.silder,
+    [AutoScreenOffConfig.min, AutoScreenOffConfig.max],
+    OLEDPreventBurnConfig.oledPreventBurn
+  ),
 ];
 
 const textSizeSmall = 12.0;
