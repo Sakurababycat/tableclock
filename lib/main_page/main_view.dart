@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:table_clock/fisrt_page/config_view.dart';
 import 'package:table_clock/main_page/fill_content.dart';
 import 'package:flutter/material.dart';
+import 'package:table_clock/utils/config.dart';
 import 'package:table_clock/utils/config_ext.dart';
 import 'package:vibration/vibration.dart';
 
@@ -20,6 +23,7 @@ class _MainViewState extends State<MainView> {
   String countdownTimeStr = '00:00';
   Timer? countdownTimer;
   Timer? preventBurnTimer;
+  Timer? vibrationTimer;
 
   bool isblackScreen = false;
 
@@ -46,6 +50,7 @@ class _MainViewState extends State<MainView> {
     Config.getConfig().config.removeListener(setCountDown);
     closeCountDownTimer();
     closePreventBurnTimer();
+    closeVibrationTimer();
 
     super.dispose();
   }
@@ -58,6 +63,11 @@ class _MainViewState extends State<MainView> {
   closePreventBurnTimer() {
     preventBurnTimer?.cancel();
     preventBurnTimer = null;
+  }
+
+  closeVibrationTimer() {
+    vibrationTimer?.cancel();
+    vibrationTimer = null;
   }
 
   updateTime() {
@@ -101,6 +111,7 @@ class _MainViewState extends State<MainView> {
         setState_();
         if (downCountNumInSec == 0) {
           countdownEndedAlert();
+          noticeDialog(context);
           closeCountDownTimer();
         }
       });
@@ -115,9 +126,13 @@ class _MainViewState extends State<MainView> {
     final canVibrate = await Vibration.hasVibrator();
     if (canVibrate != null && canVibrate) {
       final time = getVibrationTime();
-      Vibration.vibrate(
-        duration: time * 1000,
-      );
+      closeVibrationTimer();
+      vibrationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        Vibration.vibrate(amplitude: 255);
+        if (timer.tick == time) {
+          closeVibrationTimer();
+        }
+      });
     }
   }
 
@@ -175,7 +190,7 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  Future<void> startUpDialog(BuildContext context) async {
+  Future<void> settingsDialog(BuildContext context) async {
     Widget builder(BuildContext context) {
       return AlertDialog(
         title: const Text("设置"),
@@ -201,13 +216,58 @@ class _MainViewState extends State<MainView> {
     return showDialog(context: context, builder: builder);
   }
 
+  Future<void> noticeDialog(BuildContext context) async {
+    Widget builder(BuildContext context) {
+      return AlertDialog(
+        title: const Text("时间到！"),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              stopNotice();
+            },
+            style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            )),
+            child: const Text(
+              '好！',
+              style: TextStyle(fontSize: textSizeLarge),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              stopNotice();
+              handleConfig(true);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            )),
+            child: const Text(
+              '重置',
+              style: TextStyle(fontSize: textSizeLarge),
+            ),
+          )
+        ],
+      );
+    }
+
+    return showDialog(context: context, builder: builder);
+  }
+
   void handleTap() {
     if (isblackScreen) {
       isblackScreen = false;
       setState_();
     } else {
-      startUpDialog(context);
+      settingsDialog(context);
     }
     handlePreventBurn();
+  }
+
+  void stopNotice() {
+    Vibration.cancel();
+    closeVibrationTimer();
   }
 }

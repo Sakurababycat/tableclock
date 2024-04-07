@@ -136,7 +136,7 @@ List<ConfigEnumWithDesc<BaseConfig>> configLists = [
     null
   ),
   (
-    AutoScreenOffConfig.autoScreenOff.text,
+    '${AutoScreenOffConfig.autoScreenOff.text}(${AutoScreenOffConfig.min}~${AutoScreenOffConfig.max}s)',
     AutoScreenOffConfig.enumInstance,
     ConfigType.silder,
     [AutoScreenOffConfig.min, AutoScreenOffConfig.max],
