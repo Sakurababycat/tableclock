@@ -64,13 +64,13 @@ class RelaxCountdownConfig extends BaseConfig {
   const RelaxCountdownConfig._({required super.text}) : super._();
 }
 
-class VibratorConfig extends BaseConfig {
-  static const vibratorTime = VibratorConfig._(text: '提醒时长');
+class VibrationTimeConfig extends BaseConfig {
+  static const vibratorTime = VibrationTimeConfig._(text: '提醒时长');
   static const enumInstance = [vibratorTime];
   static const min = 10;
   static const max = 30;
 
-  const VibratorConfig._({required super.text}) : super._();
+  const VibrationTimeConfig._({required super.text}) : super._();
 }
 
 class OLEDPreventBurnConfig extends BaseConfig {
@@ -122,10 +122,10 @@ List<ConfigEnumWithDesc<BaseConfig>> configLists = [
     null
   ),
   (
-    '${VibratorConfig.vibratorTime.text}(s)',
-    VibratorConfig.enumInstance,
+    '${VibrationTimeConfig.vibratorTime.text}(s)',
+    VibrationTimeConfig.enumInstance,
     ConfigType.silder,
-    [VibratorConfig.min, VibratorConfig.max],
+    [VibrationTimeConfig.min, VibrationTimeConfig.max],
     RelaxSwitchConfig.relaxClock
   ),
   (

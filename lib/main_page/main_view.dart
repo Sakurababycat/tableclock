@@ -1,15 +1,14 @@
 import 'dart:async';
 
+import 'package:table_clock/fisrt_page/config_view.dart';
 import 'package:table_clock/main_page/fill_content.dart';
 import 'package:flutter/material.dart';
 import 'package:table_clock/utils/config_ext.dart';
 import 'package:vibration/vibration.dart';
 
-typedef CountStateHook = void Function(bool);
-
 class MainView extends StatefulWidget {
-  final void Function(CountStateHook) setCountStateHook;
-  const MainView({super.key, required this.setCountStateHook});
+  final bool startCountDown;
+  const MainView({super.key, this.startCountDown = false});
 
   @override
   State<StatefulWidget> createState() => _MainViewState();
@@ -20,17 +19,34 @@ class _MainViewState extends State<MainView> {
   late Timer timer;
   String countdownTimeStr = '00:00';
   Timer? countdownTimer;
+  Timer? preventBurnTimer;
+
+  bool isblackScreen = false;
 
   @override
   void initState() {
     super.initState();
-    widget.setCountStateHook(countDown);
+    handlePreventBurn();
+
     updateTime();
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       updateTime();
     });
     Config.getConfig().config.addListener(setCountDown);
-    countDown(false);
+    countDown(widget.startCountDown);
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    Config.getConfig().config.removeListener(setCountDown);
+    countdownTimer?.cancel();
+    countdownTimer = null;
+    preventBurnTimer?.cancel();
+    preventBurnTimer = null;
+
+    handlePreventBurn();
+    super.dispose();
   }
 
   updateTime() {
@@ -57,15 +73,6 @@ class _MainViewState extends State<MainView> {
     countdownTimeStr =
         "${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}";
     setState_();
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    Config.getConfig().config.removeListener(setCountDown);
-    countdownTimer?.cancel();
-    countdownTimer = null;
-    super.dispose();
   }
 
   void countDown(bool state) {
@@ -97,8 +104,33 @@ class _MainViewState extends State<MainView> {
   void countdownEndedAlert() async {
     final canVibrate = await Vibration.hasVibrator();
     if (canVibrate != null && canVibrate) {
-      Vibration.vibrate(duration: 500);
+      final time = getVibrationTime();
+      Vibration.vibrate(
+        duration: time * 1000,
+      );
     }
+  }
+
+  void handlePreventBurn() {
+    if (getPrevetBurn()) {
+      int countdown = getAutoScreenOff();
+      closeSleepTimer();
+      preventBurnTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        countdown--;
+        if (countdown == 0) {
+          isblackScreen = true;
+          closeSleepTimer();
+          setState_();
+        }
+      });
+    } else {
+      closeSleepTimer();
+    }
+  }
+
+  closeSleepTimer() {
+    preventBurnTimer?.cancel();
+    preventBurnTimer = null;
   }
 
   @override
@@ -130,5 +162,50 @@ class _MainViewState extends State<MainView> {
     return FilledViewBuilder(
       child: content,
     );
+  }
+
+  Future<void> startUpDialog(BuildContext context) async {
+    Widget builder(BuildContext context) {
+      return AlertDialog(
+        title: const Text("设置"),
+        content: const SingleChildScrollView(
+          child: ConfigView(),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                countDown(true);
+                Navigator.pop(context);
+              },
+              child: const Text("重置")),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("返回"))
+        ],
+      );
+    }
+
+    return showDialog(context: context, builder: builder);
+  }
+
+  mainViewGestureDetector(Widget view) {
+    return Scaffold(
+      body: GestureDetector(
+        onTap: handleTap,
+        child: view,
+      ),
+    );
+  }
+
+  void handleTap() {
+    if (isblackScreen) {
+      isblackScreen = false;
+      setState_();
+    } else {
+      startUpDialog(context);
+    }
+    handlePreventBurn();
   }
 }

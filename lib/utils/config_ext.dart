@@ -45,7 +45,8 @@ String getKeyByClass(Object type) {
   return type.toString();
 }
 
-int getCountdownTime() => Config.getConfig()[RelaxCountdownConfig] ?? 0;
+int getCountdownTime() =>
+    Config.getConfig()[RelaxCountdownConfig] ?? RelaxCountdownConfig.min;
 
 bool getCountdownSwitch() =>
     Config.getConfig()[RelaxSwitchConfig] == RelaxSwitchConfig.relaxClock;
@@ -54,3 +55,13 @@ double getVFillSize(Size size) =>
     Config.getConfig()[VFillSizeConfig] * size.width / 200;
 double getHFillSize(Size size) =>
     Config.getConfig()[HFillSizeConfig] * size.height / 200;
+
+int getVibrationTime() =>
+    Config.getConfig()[VibrationTimeConfig] ?? VibrationTimeConfig.min;
+
+bool getPrevetBurn() =>
+    Config.getConfig()[OLEDPreventBurnConfig] ==
+    OLEDPreventBurnConfig.oledPreventBurn;
+
+int getAutoScreenOff() =>
+    Config.getConfig()[AutoScreenOffConfig] ?? AutoScreenOffConfig.min;
