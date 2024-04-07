@@ -14,13 +14,9 @@ class FirstPage extends StatefulWidget {
   createState() => _FirstPageState();
 }
 
-class _FirstPageState extends State<FirstPage>
-    with SingleTickerProviderStateMixin {
+class _FirstPageState extends State<FirstPage> {
   bool isLandscape = false;
   late CountStateHook? countStateHook;
-
-  late Animation<double> animation;
-  late AnimationController controller;
 
   setOrientation(bool val) async {
     setState(() {
@@ -47,23 +43,6 @@ class _FirstPageState extends State<FirstPage>
   }
 
   @override
-  void initState() {
-    super.initState();
-    controller = AnimationController(
-        duration: const Duration(milliseconds: 600), vsync: this);
-    animation = Tween<double>(begin: 0.3, end: 1).animate(controller)
-      ..addListener(() {
-        setState(() {});
-      });
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final height = size.width * size.width / size.height;
@@ -82,7 +61,7 @@ class _FirstPageState extends State<FirstPage>
               ElevatedButton(
                 onPressed: () {
                   saveRecord();
-                  setOrientation(true).then((_) => controller.forward());
+                  setOrientation(true);
                 },
                 child: const Text('进入'),
               ),
@@ -103,38 +82,16 @@ class _FirstPageState extends State<FirstPage>
           body: PopScope(
             canPop: false,
             onPopInvoked: (bool val) {
-              void anim_() {
-                if (controller.status == AnimationStatus.dismissed) {
-                  controller.removeListener(anim_);
-                  controller.reset();
-                  setOrientation(val);
-                }
-              }
-
-              controller.addListener(anim_);
-              controller.reverse();
+              setOrientation(val);
             },
             child: GestureDetector(
-                onTap: () => startUpDialog(context),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: size.width * (1 - animation.value) / 2,
-                    ),
-                    Column(
-                      children: [
-                        SizedBox(
-                          height: size.height * (1 - animation.value) / 2,
-                        ),
-                        SizedBox(
-                          height: size.height * animation.value,
-                          width: size.width * animation.value,
-                          child: mainview,
-                        ),
-                      ],
-                    )
-                  ],
-                )),
+              onTap: () => startUpDialog(context),
+              child: SizedBox(
+                height: size.height,
+                width: size.width,
+                child: mainview,
+              ),
+            ),
           ),
         ),
     };
