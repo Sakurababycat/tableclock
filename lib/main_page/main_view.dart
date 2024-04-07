@@ -44,12 +44,20 @@ class _MainViewState extends State<MainView> {
   void dispose() {
     timer.cancel();
     Config.getConfig().config.removeListener(setCountDown);
-    countdownTimer?.cancel();
-    countdownTimer = null;
-    preventBurnTimer?.cancel();
-    preventBurnTimer = null;
+    closeCountDownTimer();
+    closePreventBurnTimer();
 
     super.dispose();
+  }
+
+  closeCountDownTimer() {
+    countdownTimer?.cancel();
+    countdownTimer = null;
+  }
+
+  closePreventBurnTimer() {
+    preventBurnTimer?.cancel();
+    preventBurnTimer = null;
   }
 
   updateTime() {
@@ -93,13 +101,11 @@ class _MainViewState extends State<MainView> {
         setState_();
         if (downCountNumInSec == 0) {
           countdownEndedAlert();
-          countdownTimer?.cancel();
-          countdownTimer = null;
+          closeCountDownTimer();
         }
       });
     } else {
-      countdownTimer?.cancel();
-      countdownTimer = null;
+      closeCountDownTimer();
       setCountDownTimeStr(countdown, 0);
       setState_();
     }
@@ -118,23 +124,18 @@ class _MainViewState extends State<MainView> {
   void handlePreventBurn() {
     if (getPrevetBurn()) {
       int countdown = getAutoScreenOff();
-      closeSleepTimer();
+      closePreventBurnTimer();
       preventBurnTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         countdown--;
         if (countdown == 0) {
           isblackScreen = true;
-          closeSleepTimer();
+          closePreventBurnTimer();
           setState_();
         }
       });
     } else {
-      closeSleepTimer();
+      closePreventBurnTimer();
     }
-  }
-
-  closeSleepTimer() {
-    preventBurnTimer?.cancel();
-    preventBurnTimer = null;
   }
 
   @override
