@@ -7,8 +7,8 @@ import 'package:table_clock/utils/config_ext.dart';
 import 'package:vibration/vibration.dart';
 
 class MainView extends StatefulWidget {
-  final bool startCountDown;
-  const MainView({super.key, this.startCountDown = false});
+  final bool isOnMainPage;
+  const MainView({super.key, this.isOnMainPage = false});
 
   @override
   State<StatefulWidget> createState() => _MainViewState();
@@ -26,14 +26,18 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     super.initState();
-    handlePreventBurn();
 
     updateTime();
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       updateTime();
     });
     Config.getConfig().config.addListener(setCountDown);
-    countDown(widget.startCountDown);
+    handleConfig(widget.isOnMainPage);
+  }
+
+  void handleConfig(bool startCountDown) {
+    handlePreventBurn();
+    countDown(startCountDown);
   }
 
   @override
@@ -45,7 +49,6 @@ class _MainViewState extends State<MainView> {
     preventBurnTimer?.cancel();
     preventBurnTimer = null;
 
-    handlePreventBurn();
     super.dispose();
   }
 
@@ -64,9 +67,10 @@ class _MainViewState extends State<MainView> {
   }
 
   void setCountDown() {
-    final countdown = getCountdownTime();
-    setCountDownTimeStr(countdown, 0);
-    setState_();
+    if (!widget.isOnMainPage) {
+      final countdown = getCountdownTime();
+      setCountDownTimeStr(countdown, 0);
+    }
   }
 
   void setCountDownTimeStr(int min, int sec) {
@@ -142,8 +146,8 @@ class _MainViewState extends State<MainView> {
         style: const TextStyle(color: Colors.white),
       ),
     );
-    final content = switch (getCountdownSwitch()) {
-      true => Column(children: [
+    final content = switch ((getCountdownSwitch(), isblackScreen)) {
+      (true, false) => Column(children: [
           Expanded(flex: 3, child: timeText),
           Expanded(
             flex: 2,
@@ -156,11 +160,17 @@ class _MainViewState extends State<MainView> {
             ),
           )
         ]),
-      false => timeText,
+      (false, false) => timeText,
+      (_, true) => Container(
+          color: Colors.black,
+        )
     };
 
-    return FilledViewBuilder(
-      child: content,
+    return GestureDetector(
+      onTap: handleTap,
+      child: FilledViewBuilder(
+        child: content,
+      ),
     );
   }
 
@@ -188,15 +198,6 @@ class _MainViewState extends State<MainView> {
     }
 
     return showDialog(context: context, builder: builder);
-  }
-
-  mainViewGestureDetector(Widget view) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: handleTap,
-        child: view,
-      ),
-    );
   }
 
   void handleTap() {
