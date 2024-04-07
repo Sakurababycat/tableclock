@@ -57,6 +57,8 @@ class _BlankViewState extends State<BlankView> {
   void dispose() {
     timer.cancel();
     configStorage.record.then((value) => value.removeListener(setCountDown));
+    countdownTimer?.cancel();
+    countdownTimer = null;
     super.dispose();
   }
 

@@ -1,7 +1,3 @@
-import 'dart:math';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:table_clock/utils/config_ext.dart';
 import 'package:table_clock/utils/record.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +10,7 @@ class ConfigSwitcher<DerivedType extends BaseConfig> extends StatefulWidget {
   final ConfigEnumType<DerivedType> enumInstances;
   final String description;
   final ConfigType type;
-  final List<dynamic>? ext;
+  final List<num>? ext;
 
   const ConfigSwitcher({
     super.key,
@@ -32,7 +28,6 @@ class _ConfigSwitcher<DerivedType extends BaseConfig>
     extends State<ConfigSwitcher<DerivedType>> {
   int switchState = 0;
   List<num>? defaultState;
-  List<ConfigEnumWithDesc>? extConfig;
 
   void changeStateMulti(int? state) {
     final state_ = state ?? 0;
@@ -69,16 +64,8 @@ class _ConfigSwitcher<DerivedType extends BaseConfig>
 
     if (widget.ext != null) {
       for (final ext in widget.ext!) {
-        switch (ext) {
-          case num val:
-            defaultState ??= [];
-            defaultState!.add(val);
-          case ConfigEnumWithDesc config:
-            extConfig ??= [];
-            extConfig!.add(config);
-          case _:
-            throw Exception("Invalid type");
-        }
+        defaultState ??= [];
+        defaultState!.add(ext);
       }
     }
     getRecord();
@@ -116,36 +103,12 @@ class _ConfigSwitcher<DerivedType extends BaseConfig>
 
   @override
   Widget build(BuildContext context) {
-    ConfigEnumWithDesc? extConfig_;
-    ConfigSwitcher? extSwitcher;
-    try {
-      extConfig_ = extConfig?[switchState];
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-    if (extConfig_ != null) {
-      final (desc, enumInstance, swtype, ext) = extConfig_;
-      extSwitcher = ConfigSwitcher(
-        enumInstances: enumInstance as List<BaseConfig>,
-        description: desc,
-        type: swtype,
-        ext: ext,
-      );
-    }
-
-    return Column(
-      children: [
-        switch (widget.type) {
-          ConfigType.singleSwitch => singleSwitch(),
-          ConfigType.dauSwitch => dauSwitch(),
-          ConfigType.multiCheck => multiConfig(),
-          ConfigType.silder => singleSlider(),
-        },
-        if (extConfig_ != null) extSwitcher!
-      ],
-    );
+    return switch (widget.type) {
+      ConfigType.singleSwitch => singleSwitch(),
+      ConfigType.dauSwitch => dauSwitch(),
+      ConfigType.multiCheck => multiConfig(),
+      ConfigType.silder => singleSlider(),
+    };
   }
 
   Widget singleSlider() {
