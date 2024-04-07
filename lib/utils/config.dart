@@ -58,7 +58,7 @@ class VFillSizeConfig extends BaseConfig {
 class RelaxCountdownConfig extends BaseConfig {
   static const countdownTime = RelaxCountdownConfig._(text: '倒计时');
   static const enumInstance = [countdownTime];
-  static const min = 1;
+  static const min = 20;
   static const max = 80;
 
   const RelaxCountdownConfig._({required super.text}) : super._();
