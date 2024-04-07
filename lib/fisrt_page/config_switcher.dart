@@ -10,7 +10,7 @@ class ConfigSwitcher<DerivedType extends BaseConfig> extends StatefulWidget {
   final ConfigEnumType<DerivedType> enumInstances;
   final String description;
   final ConfigType type;
-  final List<num>? ext;
+  final List<int>? ext;
 
   const ConfigSwitcher({
     super.key,
@@ -27,7 +27,7 @@ class ConfigSwitcher<DerivedType extends BaseConfig> extends StatefulWidget {
 class _ConfigSwitcher<DerivedType extends BaseConfig>
     extends State<ConfigSwitcher<DerivedType>> {
   int switchState = 0;
-  List<num>? defaultState;
+  List<int>? defaultState;
 
   void changeStateMulti(int? state) {
     final state_ = state ?? 0;
@@ -72,12 +72,10 @@ class _ConfigSwitcher<DerivedType extends BaseConfig>
   }
 
   getRecord() async {
-    final record = await configStorage.record;
     final initState_ = defaultState?[0] ?? 0;
-    final state =
-        record.record[getKeyByEnum(widget.enumInstances)] ?? initState_;
-    changeState(state);
-    saveConfig(state);
+    final record = await configStorage[getKeyByEnum(widget.enumInstances)];
+    changeState(record ?? initState_);
+    if (record == null) saveConfig(initState_);
   }
 
   DerivedType state2ViewMode(int state) {

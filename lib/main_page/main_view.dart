@@ -3,19 +3,18 @@ import 'dart:async';
 import 'package:table_clock/main_page/fill_content.dart';
 import 'package:flutter/material.dart';
 import 'package:table_clock/utils/config_ext.dart';
-import 'package:table_clock/utils/record.dart';
 
 typedef CountStateHook = void Function(bool);
 
-class BlankView extends StatefulWidget {
+class MainView extends StatefulWidget {
   final void Function(CountStateHook) setCountStateHook;
-  const BlankView({super.key, required this.setCountStateHook});
+  const MainView({super.key, required this.setCountStateHook});
 
   @override
-  State<StatefulWidget> createState() => _BlankViewState();
+  State<StatefulWidget> createState() => _MainViewState();
 }
 
-class _BlankViewState extends State<BlankView> {
+class _MainViewState extends State<MainView> {
   String time = '';
   late Timer timer;
   String countdownTimeStr = '00:00';
@@ -29,7 +28,7 @@ class _BlankViewState extends State<BlankView> {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       updateTime();
     });
-    configStorage.record.then((value) => value.addListener(setCountDown));
+    Config.getConfig().config.addListener(setCountDown);
     countDown(false);
   }
 
@@ -56,7 +55,7 @@ class _BlankViewState extends State<BlankView> {
   @override
   void dispose() {
     timer.cancel();
-    configStorage.record.then((value) => value.removeListener(setCountDown));
+    Config.getConfig().config.removeListener(setCountDown);
     countdownTimer?.cancel();
     countdownTimer = null;
     super.dispose();

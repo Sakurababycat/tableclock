@@ -46,7 +46,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final height = size.width * size.width / size.height;
-    final mainview = BlankView(
+    final mainview = MainView(
       setCountStateHook: setCountStateHook,
     );
     final view = switch (isLandscape) {

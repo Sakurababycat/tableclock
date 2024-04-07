@@ -4,7 +4,7 @@ import 'package:table_clock/utils/config.dart';
 import 'package:table_clock/utils/record.dart';
 
 class Config {
-  Map<String, dynamic> config = {};
+  final config = ConfigRecordType(record: {});
   static final Config _instance = Config._();
   Config._() {
     initConfig();
@@ -13,23 +13,15 @@ class Config {
   factory Config.getConfig() => _instance;
 
   void initConfig({ConfigRecordType? record}) {
-    final List<String> keys = [];
-    for (final (_, enumInstance, type, _) in configLists) {
+    for (final (_, enumInstance, type, _, _) in configLists) {
       final key = getKeyByEnum(enumInstance);
       final state = record?.record[key] ?? 0;
-      config[key] = switch (type) {
+      config.record[key] = switch (type) {
         ConfigType.silder => state,
         _ => enumInstance.enumByIndex(state)
       };
-      keys.add(key);
     }
-    if (record != null) {
-      for (final item in record.record.entries) {
-        if (!keys.contains(item.key)) {
-          config[item.key] = item.value;
-        }
-      }
-    }
+    config.notify();
   }
 
   void refreshConfig() async {
@@ -39,7 +31,7 @@ class Config {
 
   operator [](Object type) {
     final key = getKeyByClass(type);
-    return config[key];
+    return config.record[key];
   }
 }
 

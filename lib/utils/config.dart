@@ -14,7 +14,8 @@ typedef ConfigEnumWithDesc<Type> = (
   String desc,
   ConfigEnumType<Type> enumInstance,
   ConfigType type,
-  List<num>? ext
+  List<int>? ext,
+  BaseConfig? condition
 );
 
 class BaseConfig {
@@ -66,16 +67,17 @@ class RelaxCountdownConfig extends BaseConfig {
 enum ConfigType { singleSwitch, dauSwitch, multiCheck, silder }
 
 List<ConfigEnumWithDesc<BaseConfig>> configLists = [
-  ('背景设置', BGConfig.enumInstance, ConfigType.multiCheck, null),
-  ("放松提醒", RelaxSwitchConfig.enumInstance, ConfigType.singleSwitch, null),
+  ('背景设置', BGConfig.enumInstance, ConfigType.multiCheck, null, null),
+  ("放松提醒", RelaxSwitchConfig.enumInstance, ConfigType.singleSwitch, null, null),
   (
     '倒计时(${RelaxCountdownConfig.min}~${RelaxCountdownConfig.max}min)',
     RelaxCountdownConfig.enumInstance,
     ConfigType.silder,
-    [RelaxCountdownConfig.min, RelaxCountdownConfig.max]
+    [RelaxCountdownConfig.min, RelaxCountdownConfig.max],
+    RelaxSwitchConfig.relaxClock
   ),
-  ('水平填充(%)', VFillSizeConfig.enumInstance, ConfigType.silder, null),
-  ('垂直填充(%)', HFillSizeConfig.enumInstance, ConfigType.silder, null),
+  ('水平填充(%)', VFillSizeConfig.enumInstance, ConfigType.silder, null, null),
+  ('垂直填充(%)', HFillSizeConfig.enumInstance, ConfigType.silder, null, null),
 ];
 
 const textSizeSmall = 12.0;
