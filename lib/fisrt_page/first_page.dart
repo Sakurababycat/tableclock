@@ -65,6 +65,9 @@ class _FirstPageState extends State<FirstPage> {
                 },
                 child: const Text('进入'),
               ),
+              Expanded(
+                child: Container(),
+              ),
               Row(
                 children: [
                   Text("预览:  ",
